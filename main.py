@@ -17,13 +17,13 @@ class HomePrice:
     def parse(self, url, province):
         self.__driver.get(url)
         time.sleep(2)
-        df = pd.DataFrame(columns=['kind','bed', 'bath', 'sqft', 'price', 'address', 'province'])
         cards = []
         for _ in range(8):      
             self.__driver.execute_script('window.scrollBy(0, 1600)')
             time.sleep(2)
             bs = BeautifulSoup(self.__driver.page_source, 'html.parser')
             cards = bs.find_all('div', {'class' : 'BasePropertyCard_propertyCardWrap__30VCU'})
+            propList = []
             for cardd in cards:
                 try:        
                     bed = cardd.find('li', {'data-testid' : 'property-meta-beds'}).text
@@ -37,9 +37,10 @@ class HomePrice:
                     sqft = float(sqft.replace(",", ""))
                     price = float(price.replace('$', '').replace(',', ''))
                     kind = cardd.find('div', {'class' : 'base__StyledType-rui__sc-108xfm0-0 hRTvWe message'}).text
-                    df = df._append({'kind' : kind,'bed' : bed, 'bath' : bath, 'sqft' : sqft, 'price' : price, 'address' : address, 'province' : province}, ignore_index = True)
+                    propList.append([kind, bed, bath, sqft, price, address, province])
                 except:
                     pass
+        df = pd.DataFrame(data = propList, columns=['kind','bed', 'bath', 'sqft', 'price', 'address', 'province'])
         df = df.drop_duplicates()
         return df
     
