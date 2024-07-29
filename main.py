@@ -10,11 +10,11 @@ class HomePrice:
         self.__driver = Driver(uc=True)
         self.__driver.maximize_window()
 
-    def get_url(self, province, page):
-        data = f"https://www.realtor.com/realestateandhomes-search/{province}/type-single-family-home,condo,townhome,multi-family-home,mfd-mobile-home/pg-{page}"
+    def get_url(self, province, page, type):
+        data = f"https://www.realtor.com/realestateandhomes-search/{province}/type-{type}-home/pg-{page}"
         return data
     
-    def parse(self, url, province):
+    def parse(self, url, province, kind):
         self.__driver.get(url)
         time.sleep(2)
         cards = []
@@ -36,7 +36,7 @@ class HomePrice:
                     bath = float(bath.replace("bath", ""))
                     sqft = float(sqft.replace(",", ""))
                     price = float(price.replace('$', '').replace(',', ''))
-                    kind = cardd.find('div', {'class' : 'base__StyledType-rui__sc-108xfm0-0 hRTvWe message'}).text
+                    kind = kind
                     propList.append([kind, bed, bath, sqft, price, address, province])
                 except:
                     pass
@@ -47,8 +47,8 @@ class HomePrice:
 
 #example
 hp = HomePrice()
-url = hp.get_url('Colorado', '1')#province = colorado, page = 1
-df = hp.parse(url, 'Colorado')#parse the data and turn it to df
+url = hp.get_url('Colorado', '1', 'single-family')#province = colorado, page = 1
+df = hp.parse(url, 'Colorado', 'single-family')#parse the data and turn it to df
 df.index = range(df.shape[0])
 df.to_csv("homes.csv", index=False)
 
